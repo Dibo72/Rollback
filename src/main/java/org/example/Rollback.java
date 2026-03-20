@@ -1,17 +1,43 @@
 package org.example;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+import java.sql.*;
+public class Rollback {
+    public static void main(String[] args) throws SQLException {
+        Connection conn = null;
+        try{ conn = DriverManager.getConnection(
+                DBConfig.getUrl(),
+                DBConfig.getUser(),
+                DBConfig.getPassword());
+             Statement stmt = conn.createStatement();
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+             conn.setAutoCommit(false);
+             //quitamos el autocomit para poder hacerlo manualmente
+
+            String sqlDelete ="DROP TABLE EMPLEADO CASCADE CONSTRAINTS";
+            String sql = "CREATE TABLE empleado (" + "id NUMBER PRIMARY KEY, " + "nombre VARCHAR(100), " + "salario NUMBER (10, 2))";
+            stmt.executeUpdate(sqlDelete);
+            stmt.executeUpdate(sql);
+
+            String insertar = "INSERT INTO empleado VALUES (1, 'Jose', 2000)";
+            String insertar1 = "INSERT INTO empleado VALUES (2, 'Juanma', 1000)";
+            String insertar2 = "INSERT INTO empleado VALUES (3, 'Pepe', 2050)";
+            String insertar3 = "INSERT INTO empleado VALUES (4, 'Rosa', 234.32)";
+            String insertar4 = "INSERT INTO empleado VALUES (5, 5000)";
+            stmt.executeUpdate(insertar);
+            stmt.executeUpdate(insertar1);
+            stmt.executeUpdate(insertar2);
+            //hacemos el commit aqui para observar qyue no se guardan todos los inserts
+            conn.commit();
+            stmt.executeUpdate(insertar3);
+            stmt.executeUpdate(insertar4);
+            System.out.println("Insertdo");
+
+        }catch(SQLException e){
+            //si salta excepcion, hacemos el rollback
+            conn.rollback();
+            System.out.println("Error, ejecutando rollback");
+        }catch(Exception e){
+            System.out.println(e.getMessage());
         }
     }
 }
