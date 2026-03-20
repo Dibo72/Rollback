@@ -31,6 +31,8 @@ public class Rollback {
             stmt.executeUpdate(insertar3);
             stmt.executeUpdate(insertar4);
             System.out.println("Insertdo");
+            stmt.close();
+            conn.close();
 
         }catch(SQLException e){
             //si salta excepcion, hacemos el rollback
